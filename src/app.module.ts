@@ -7,6 +7,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { PetsModule } from './pets/pets.module';
 
 
 
@@ -25,6 +26,7 @@ import { join } from 'path';
     }),
     AuthModule,
     UsersModule,
+    PetsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
