@@ -9,7 +9,7 @@ export class Pets {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, enum: ['Male', 'Female'] })
   gender: string;
 
   @Prop({ required: true })
