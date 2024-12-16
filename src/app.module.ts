@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { PetsModule } from './pets/pets.module';
+import { CategoryModule } from './category/category.module';
 
 
 
@@ -27,6 +28,7 @@ import { PetsModule } from './pets/pets.module';
     AuthModule,
     UsersModule,
     PetsModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
