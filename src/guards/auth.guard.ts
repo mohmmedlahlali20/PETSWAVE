@@ -18,7 +18,7 @@ export class JwtAuth implements CanActivate {
         }
 
         try {
-            const secret = process.env.JWT_SECRET || 'superKeyScurize';
+            const secret = process.env.JWT_SECRET;
 
             console.log('Using Secret:', secret);
             console.log('Token:', token);
