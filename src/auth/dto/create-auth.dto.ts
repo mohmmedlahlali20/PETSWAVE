@@ -27,4 +27,8 @@ export class CreateAuthDto {
   @IsEnum(Role, { message: 'Role must be either "Admin" or "Client"' })
   @IsNotEmpty()
   role: Role;
+
+
+  @IsNotEmpty()
+  avatar: string;
 }
