@@ -5,6 +5,7 @@ import { Pets, PetsDocument } from './schema/pets.schema';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { PetsResponse } from './dto/pets-response.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
+import { log } from 'node:console';
 
 @Injectable()
 export class PetsService {
@@ -47,7 +48,7 @@ export class PetsService {
       console.error('Error while fetching all pets:', err);
       throw new Error('Failed to get all pets');
     }
-  }
+  }       
 
   async getPetsByCategoryID(categoryId: string): Promise<PetsResponse> {
     try {
@@ -97,5 +98,5 @@ export class PetsService {
       throw new Error('Failed to update pet');
     }
   }
-  
+ 
 }
