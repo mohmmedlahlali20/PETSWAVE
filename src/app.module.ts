@@ -9,6 +9,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { PetsModule } from './pets/pets.module';
 import { CategoryModule } from './category/category.module';
+import { CommandesModule } from './commandes/commandes.module';
 
 
 
@@ -29,6 +30,7 @@ import { CategoryModule } from './category/category.module';
     UsersModule,
     PetsModule,
     CategoryModule,
+    CommandesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
