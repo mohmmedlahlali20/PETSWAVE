@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseInterceptors, UploadedFiles } from '@nestjs/common';
+import { Controller, Post, Body, UseInterceptors, UploadedFiles, Get, Param } from '@nestjs/common';
 import { PetsService } from './pets.service';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -32,4 +32,28 @@ export class PetsController {
     const imagePaths = files.images?.map(file => file.path) || [];
     return this.petsService.create(createPetDto, imagePaths);
   }
+
+
+
+  @Get('/findAll')
+  async findAllPets(){
+    return this.petsService.getAllPets()
+  }
+
+  @Get('/findByPetsId/:petsId')
+  async findByPetsId(@Param('petsId')  petsId: string){
+    return this.petsService.getPetsById(petsId)
+  }
+
+
+  @Get('/getPetsByCategoryID/:categoryId')
+  async getPetsByCategoryId(@Param('categoryId')  categoryId:string ){
+    return this.petsService.getPetsByCategoryID(categoryId)
+  }
+
+  
+
+
+
+
 }
