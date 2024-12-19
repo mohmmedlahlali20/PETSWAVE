@@ -15,14 +15,17 @@ export class Pets {
   @Prop({ required: true })
   age: number;
 
-  @Prop({ type: Types.ObjectId, ref: 'Category', required: true })
-  category: Category;
+  @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'Category', required: true })
+  categories: Category[];
 
   @Prop({ type: [String], required: true })
   images: string[];
 
   @Prop({ required: true })
   description: string;
+
+  @Prop({ required: true })
+  Prix: number;
 }
 
 export const PetsSchema = SchemaFactory.createForClass(Pets);
