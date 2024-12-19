@@ -5,11 +5,7 @@ import { UpdateCommandeDto } from './dto/update-commande.dto';
 @Injectable()
 export class CommandesService {
   create(commendsDTO: CreateCommandeDto) {
-    try {
-      
-    } catch (err) {
-      
-    }
+    
   }
 
   

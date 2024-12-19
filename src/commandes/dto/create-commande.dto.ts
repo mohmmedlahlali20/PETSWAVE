@@ -22,9 +22,6 @@ export class CreateCommandeDto {
     status: status
 
 
-    @IsNotEmpty()
-    orderDate: Date;
-
 
 
     @IsNotEmpty()
