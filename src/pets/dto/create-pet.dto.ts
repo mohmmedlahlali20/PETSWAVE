@@ -13,9 +13,10 @@ export class CreatePetDto {
   @IsNumber()
   age: number;
 
+  @IsArray()
   @IsNotEmpty()
-  @IsMongoId()
-  category: string;
+  @IsMongoId({ each: true })
+  category: string[];
 
   @IsArray()
   @ArrayNotEmpty()
@@ -25,4 +26,8 @@ export class CreatePetDto {
   @IsNotEmpty()
   @IsString()
   description: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  Prix: number
 }

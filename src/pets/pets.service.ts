@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Pets, PetsDocument } from './schema/pets.schema';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { PetsResponse } from './dto/pets-response.dto';
@@ -12,11 +12,16 @@ export class PetsService {
   constructor(@InjectModel(Pets.name) private readonly petsModel: Model<PetsDocument>) {}
 
   async create(createPetDto: CreatePetDto, imagePaths: string[]): Promise<Pets> {
+    
+  
+    const categories = createPetDto.category.map(categoryId => new Types.ObjectId(categoryId));
+  
     const petData = {
       ...createPetDto,
+      category: categories, 
       images: imagePaths,
     };
-
+  
     const newPet = new this.petsModel(petData);
     return newPet.save();
   }
