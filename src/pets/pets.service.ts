@@ -14,11 +14,9 @@ export class PetsService {
   async create(createPetDto: CreatePetDto, imagePaths: string[]): Promise<Pets> {
     
   
-    const categories = createPetDto.category.map(categoryId => new Types.ObjectId(categoryId));
   
     const petData = {
       ...createPetDto,
-      category: categories, 
       images: imagePaths,
     };
   
