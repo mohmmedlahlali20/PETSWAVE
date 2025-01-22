@@ -5,26 +5,21 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 import { PetsModule } from './pets/pets.module';
 import { CategoryModule } from './category/category.module';
 import { CommandesModule } from './commandes/commandes.module';
-
-
+import { MinioService } from './minio/minio.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('Mongo_URI'),
       }),
       inject: [ConfigService],
-    }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
     }),
     AuthModule,
     UsersModule,

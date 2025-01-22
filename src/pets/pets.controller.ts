@@ -1,39 +1,32 @@
 import { Controller, Post, Body, UseInterceptors, UploadedFiles, Get, Param, Delete, Patch } from '@nestjs/common';
 import { PetsService } from './pets.service';
 import { FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
+import { MinioService } from 'src/minio/minio.service';
 
 @Controller('pets')
 export class PetsController {
+  minioService: MinioService;
   constructor(private readonly petsService: PetsService) {}
 
   @Post('/create')
-  @UseInterceptors(FileFieldsInterceptor([
-    { name: 'images', maxCount: 5 }, 
-  ], {
-    storage: diskStorage({
-      destination: './petsIMG', 
-      filename: (req, file, callback) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = extname(file.originalname);
-        callback(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-      },
-    }),
-    fileFilter: (req, file, callback) => {
-      if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
-        return callback(new Error('Only image files are allowed!'), false);
-      }
-      callback(null, true);
-    },
-  }))
-  async create(@Body() createPetDto: CreatePetDto, @UploadedFiles() files: { images?: Express.Multer.File[] }) {
-    const imagePaths = files.images?.map(file => file.path) || [];
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 5 }]))
+  async create(
+    @Body() createPetDto: CreatePetDto,
+    @UploadedFiles() files: { images?: Express.Multer.File[] }
+  ) {
+    const bucketName = 'pets-images';
+    const imagePaths = [];
+
+    for (const file of files.images || []) {
+      const fileName = await this.minioService.uploadFile(bucketName, file);
+      imagePaths.push(`http://${process.env.MINIO_ENDPOINT}:${process.env.MINIO_PORT}/${bucketName}/${fileName}`);
+    }
+
     return this.petsService.create(createPetDto, imagePaths);
   }
-
 
 
   @Get('/findAll')
