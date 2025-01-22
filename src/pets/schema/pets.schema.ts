@@ -15,8 +15,8 @@ export class Pets {
   @Prop({ required: true })
   age: number;
 
-  @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'Category', required: true })
-  categories: Category[];
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Category', required: true })
+  category: Types.ObjectId;
 
   @Prop({ type: [String], required: true })
   images: string[];
