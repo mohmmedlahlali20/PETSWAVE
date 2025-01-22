@@ -8,7 +8,6 @@ import { AppService } from './app.service';
 import { PetsModule } from './pets/pets.module';
 import { CategoryModule } from './category/category.module';
 import { CommandesModule } from './commandes/commandes.module';
-import { MinioService } from './minio/minio.service';
 
 @Module({
   imports: [
