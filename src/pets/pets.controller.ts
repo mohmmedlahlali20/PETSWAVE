@@ -8,8 +8,10 @@ import { MinioService } from 'src/minio/minio.service';
 
 @Controller('pets')
 export class PetsController {
-  minioService: MinioService;
-  constructor(private readonly petsService: PetsService) {}
+  constructor(
+    private readonly petsService: PetsService,
+    private readonly minioService: MinioService
+  ) {}
 
   @Post('/create')
   @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 5 }]))
@@ -17,12 +19,14 @@ export class PetsController {
     @Body() createPetDto: CreatePetDto,
     @UploadedFiles() files: { images?: Express.Multer.File[] }
   ) {
-    const bucketName = 'pets-images';
+    const bucketName = 'pets-bucket';
     const imagePaths = [];
 
     for (const file of files.images || []) {
       const fileName = await this.minioService.uploadFile(bucketName, file);
-      imagePaths.push(`http://${process.env.MINIO_ENDPOINT}:${process.env.MINIO_PORT}/${bucketName}/${fileName}`);
+      console.log(fileName);
+      
+      imagePaths.push(`http://localhost:9000/${bucketName}/${fileName}`);
     }
 
     return this.petsService.create(createPetDto, imagePaths);
