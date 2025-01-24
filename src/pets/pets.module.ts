@@ -4,6 +4,8 @@ import { PetsController } from './pets.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Pets, PetsSchema } from './schema/pets.schema';
 import { MulterModule } from '@nestjs/platform-express';
+import { MinioService } from 'src/MinioService/minio.service';
+import { MinioModule } from 'src/MinioService/minio.module';
 
 @Module({
   imports : [
@@ -11,8 +13,9 @@ import { MulterModule } from '@nestjs/platform-express';
         MulterModule.register({
           dest: './petsIMG',
         }),
+        MinioModule
   ],
   controllers: [PetsController],
-  providers: [PetsService],
+  providers: [PetsService, MinioService],
 })
 export class PetsModule {}
