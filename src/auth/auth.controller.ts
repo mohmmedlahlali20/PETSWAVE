@@ -1,56 +1,53 @@
 
-import { Controller, Post, Body, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Post, Body, UseInterceptors, UploadedFile, Inject } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { MinioService } from 'src/MinioService/minio.service';
+
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    @Inject(MinioService) private minioService: MinioService
+  ) {}
 
 
 
   
-    @Post('/register')
-    @UseInterceptors(
-      FileInterceptor('avatar', {
-        storage: diskStorage({
-          destination: './uploads', 
-          filename: (req, file, callback) => {
-            const uniqueSuffix = Date.now() ;
-            const ext = extname(file.originalname);
-            callback(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-          },
-        }),
-        fileFilter: (req, file, callback) => {
-          if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
-            callback(new Error('Only image files are allowed!'), false);
-          }
-          callback(null, true);
-        },
-      }),
-    )
-    async register(
-      @Body() userDTO: CreateAuthDto, 
-      @UploadedFile() file: Express.Multer.File, 
-    ) {
-      try {
-        if (!file) {
-          throw new Error('File upload failed.');
-        }
-        
-        const userRegistered = await this.authService.register(userDTO, file.path);
-        
-        return {
-          message: 'User has been registered successfully',
-          user: userRegistered,
-        };
-      } catch (error) {
-        throw error;
+  
+  
+  @Post('/register')
+  @UseInterceptors(FileInterceptor('avatar'))
+  async register(
+    @Body() userDTO: CreateAuthDto, 
+    @UploadedFile() file: Express.Multer.File  ) {
+    try {
+      if (!file) {
+        throw new Error('File upload failed.');
       }
+      console.log(file);
+      
+      console.log(userDTO);
+
+      
+      
+  
+      const fileName = await this.minioService.uploadFile('avatars', file);
+      console.log(fileName);
+      
+      const userRegistered = await this.authService.register(userDTO, fileName);
+      
+      return {
+        message: 'User has been registered successfully',
+        user: userRegistered,
+      };
+    } catch (error) {
+      throw error;
     }
+  }
+  
 
   
 
