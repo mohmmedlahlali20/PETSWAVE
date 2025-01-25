@@ -2,7 +2,7 @@ import { IsNotEmpty, IsString, IsEmail, MinLength, IsEnum } from 'class-validato
 
 export enum Role {
   Client = 'client',
-  Admin = 'Admin',
+  Admin = 'admin',
 }
 
 export class CreateAuthDto {
@@ -25,7 +25,6 @@ export class CreateAuthDto {
   lastName: string;
 
   @IsEnum(Role, { message: 'Role must be either "Admin" or "Client"' })
-  @IsNotEmpty()
   role: Role;
 
 
