@@ -10,8 +10,8 @@ export class MinioService {
       endPoint: 'localhost',
       port: 9000,
       useSSL: false,
-      accessKey:'KQss7NFSfLc2vpuhhLrV',
-      secretKey: '2QIvWxlBQ4QOleSuqeIcut9zi8FMhPFsgffVq0ny',
+      accessKey:'pKcYYJgeXkJfAZBRPgc4',
+      secretKey: 'g1Zvr6SkLt2Cc3hA8IJsKPfHcBKC0Qix5PUz29Zq',
     });
   }
 

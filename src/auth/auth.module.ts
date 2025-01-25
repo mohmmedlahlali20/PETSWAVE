@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { User, UserSchema } from 'src/users/schema/user.schema';
 import { MinioModule } from 'src/minio/minio.module'; 
 import { UsersModule } from 'src/users/users.module';
+import 'dotenv/config'
 
 @Module({
   imports: [
