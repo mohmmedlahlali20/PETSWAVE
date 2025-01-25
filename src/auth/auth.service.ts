@@ -19,7 +19,7 @@ export class AuthService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async register(userDto: CreateAuthDto, avatarUrl: string): Promise<any> {
     const { firstName, lastName, email, password, role } = userDto;
@@ -32,22 +32,24 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const userRole = role || 'Client';
+
 
     const CreateUser = await this.userModel.create({
       firstName,
       lastName,
       email,
       password: hashedPassword,
-      role: userRole,
-      avatar: avatarUrl,  
+      role: Role.Client,
+      avatar: avatarUrl,
     });
 
     return CreateUser.save();
   }
   async login(email: string, password: string): Promise<{ token: string }> {
+    console.log(email)
     const user = await this.userModel.findOne({ email });
-
+    console.log(user);
+    
     if (!user) {
       throw new HttpException(
         'User with this email does not exist',
