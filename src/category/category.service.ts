@@ -20,6 +20,21 @@ export class CategoryService {
     return savedCategory;
   }
 
+  async findAll(): Promise<Category[]>{
+    try {
+      const category = await this.categoryModel.find().exec()
+      if(category.length === 0 ){
+        console.log('no category found')
+        return []
+      }
+      return category
+    } catch (err) {
+      console.error('Error while fetching all category:', err);
+      throw new Error('Failed to get all category');
+    }
+
+  }
+
 
 
 }
