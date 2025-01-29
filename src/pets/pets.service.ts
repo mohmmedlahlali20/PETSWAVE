@@ -28,14 +28,16 @@ export class PetsService {
     try {
       const pet = await this.petsModel.findById(petsId).populate('category');
       if (!pet) {
+        console.error(`Pet with ID ${petsId} not found`);
         throw new Error(`Pet with ID ${petsId} not found`);
       }
       return pet;
     } catch (err) {
-      console.log('Error while fetching pet by ID:', err);
+      console.error(`Error while fetching pet by ID: ${err.message}`);
       throw new Error('Failed to get pet by ID');
     }
   }
+  
 
   async getAllPets(): Promise<PetsResponse> {
     try {
