@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber, IsEnum, IsArray, ArrayNotEmpty, IsMongoId } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsEnum, IsArray, ArrayNotEmpty, IsMongoId, IsBoolean } from 'class-validator';
 
 export class CreatePetDto {
   @IsNotEmpty()
@@ -30,4 +30,8 @@ export class CreatePetDto {
   @IsNotEmpty()
   @IsNumber()
   Prix: number
+
+  @IsNotEmpty()
+  @IsBoolean()
+  isAvailable: boolean
 }

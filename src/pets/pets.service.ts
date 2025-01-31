@@ -12,9 +12,6 @@ export class PetsService {
   constructor(@InjectModel(Pets.name) private readonly petsModel: Model<PetsDocument>) {}
 
   async create(createPetDto: CreatePetDto, imagePaths: string[]): Promise<Pets> {
-    
-  
-  
     const petData = {
       ...createPetDto,
       images: imagePaths,

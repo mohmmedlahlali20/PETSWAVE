@@ -13,5 +13,6 @@ import { MinioModule } from 'src/minio/minio.module';
   ],
   controllers: [PetsController],
   providers: [PetsService],
+  exports: [PetsService],
 })
 export class PetsModule {}

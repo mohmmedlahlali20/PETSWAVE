@@ -26,6 +26,9 @@ export class Pets {
 
   @Prop({ required: true })
   Prix: number;
+
+  @Prop({ default: true })
+  isAvailable: boolean;
 }
 
 export const PetsSchema = SchemaFactory.createForClass(Pets);
