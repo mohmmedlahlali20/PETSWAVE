@@ -24,4 +24,17 @@ export class CommandesService {
 
     return savedCommande;
   }
+
+
+  async getAllCommandes(): Promise<CommandeDocument[]> {
+    return this.commandeModel.find().populate('userId').populate('petsId');
+  }
+
+  async getCommandeByUserId(userId: string): Promise<CommandeDocument> {
+    return this.commandeModel.findOne({ userId }).populate('userId').populate('petsId');
+  }
+
+  
+
+
 }
