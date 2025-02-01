@@ -14,7 +14,7 @@ export class PetsController {
   ) { }
 
   @Post('/create')
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 5 }]))
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 8 }]))
   async create(
     @Body() createPetDto: CreatePetDto,
     @UploadedFiles() files: { images?: Express.Multer.File[] }
@@ -36,6 +36,11 @@ export class PetsController {
   @Get('/findAll')
   async findAllPets() {
     return this.petsService.getAllPets()
+  }
+
+  @Get('/findAllForAdmin')
+  async findAllPetsForAdmin() {
+    return this.petsService.getAllPetsForAdmin()
   }
 
   @Get('/findByPetsId/:id')

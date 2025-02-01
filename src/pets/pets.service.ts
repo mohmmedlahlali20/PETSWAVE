@@ -16,6 +16,9 @@ export class PetsService {
       ...createPetDto,
       images: imagePaths,
     };
+
+    console.log('Pet Data:', petData);
+    
   
     const newPet = new this.petsModel(petData);
     return newPet.save();
@@ -50,7 +53,23 @@ export class PetsService {
       console.error('Error while fetching all pets:', err);
       throw new Error('Failed to get all pets');
     }
-  }       
+  }
+  
+  async getAllPetsForAdmin(): Promise<PetsResponse> {
+    try {
+      const pets = await this.petsModel.find().populate('category');
+
+      if (pets.length === 0) {
+        console.log('No Pets found');
+        return { message: 'No pets found', pets: [] };
+      }
+
+      return { message: 'Get all pets', pets };
+    } catch (err) {
+      console.error('Error while fetching all pets:', err);
+      throw new Error('Failed to get all pets');
+    }
+  }
 
   async getPetsByCategoryID(categoryId: string): Promise<PetsResponse> {
     try {
