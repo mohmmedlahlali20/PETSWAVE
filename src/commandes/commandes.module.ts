@@ -10,7 +10,7 @@ import { Pets, PetsSchema } from 'src/pets/schema/pets.schema';
   imports: [
     MongooseModule.forFeature([
       {name: Commande.name, schema:CommandeSchema},
-      { name: Pets.name, schema: PetsSchema },
+      {name: Pets.name, schema: PetsSchema },
     ]),
     PetsModule,
   ],

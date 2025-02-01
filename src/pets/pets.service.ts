@@ -38,7 +38,7 @@ export class PetsService {
 
   async getAllPets(): Promise<PetsResponse> {
     try {
-      const pets = await this.petsModel.find().populate('category');
+      const pets = await this.petsModel.find({isAvailable: true}).populate('category');
 
       if (pets.length === 0) {
         console.log('No Pets found');
