@@ -1,12 +1,14 @@
-import { Controller, Post, Body, UseInterceptors, UploadedFiles, Get, Param, Delete, Patch, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Body, UseInterceptors, UploadedFiles, Get, Param, Delete, Patch, NotFoundException, UseGuards } from '@nestjs/common';
 import { PetsService } from './pets.service';
 import { FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
 import { MinioService } from 'src/minio/minio.service';
+import { JwtAuthGuard } from 'src/guards/auth.guard';
 
 @Controller('pets')
+// @UseGuards(JwtAuthGuard)
 export class PetsController {
   constructor(
     private readonly petsService: PetsService,
