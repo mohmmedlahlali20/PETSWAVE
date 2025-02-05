@@ -46,9 +46,9 @@ export class AuthService {
     return CreateUser.save();
   }
   async login(email: string, password: string): Promise<{ token: string }> {
-    console.log(email)
+    console.log("email",email)
     const user = await this.userModel.findOne({ email });
-    console.log(user);
+    console.log("user",user);
     
     if (!user) {
       throw new HttpException(
