@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { JwtAuth } from './auth.guard'; 
+import { JwtAuthGuard } from './auth.guard'; 
 import { ROLES_KEY } from 'src/common/Role.decrotor';
 
 
@@ -9,7 +9,7 @@ export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const jwtAuthGuard = new JwtAuth(); 
+    const jwtAuthGuard = new JwtAuthGuard(); 
     const isJwtValid = jwtAuthGuard.canActivate(context);
     if (!isJwtValid) {
       throw new UnauthorizedException('Invalid JWT token');

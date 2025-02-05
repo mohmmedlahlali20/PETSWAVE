@@ -24,8 +24,6 @@ export class CreateCommandeDto {
     @IsNotEmpty()
     orderDate: Date 
 
-
-
     @IsNotEmpty()
     @IsNumber()
     totalAmount: number
