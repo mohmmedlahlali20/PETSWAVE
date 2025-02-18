@@ -13,17 +13,28 @@ export class CommandesService {
   ) {}
 
   async create(commendsDTO: CreateCommandeDto): Promise<CommandeDocument> {
+    const pets = await this.petsModel.find({ _id: { $in: commendsDTO.petsId } });
+    if (!pets || pets.length === 0) {
+        throw new Error('No valid pets found');
+    }
+    const totalAmount = pets.reduce((sum, pet) => sum + pet.Prix, 0);
+    if (commendsDTO.totalAmount!== totalAmount) {
+        throw new Error('Total amount does not match the sum of pet prices');
+    }
     const commandeData = {
-      ...commendsDTO,
+        ...commendsDTO,
+        totalAmount,
     };
-
     const newCommande = new this.commandeModel(commandeData);
     const savedCommande = await newCommande.save();
-
-    await this.petsModel.findByIdAndUpdate(commendsDTO.petsId, { isAvailable: false });
+    await this.petsModel.updateMany(
+        { _id: { $in: commendsDTO.petsId } },
+        { isAvailable: false }
+    );
 
     return savedCommande;
-  }
+}
+
 
 
   async getAllCommandes(): Promise<CommandeDocument[]> {
