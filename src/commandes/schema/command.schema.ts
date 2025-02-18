@@ -7,8 +7,8 @@ export type CommandeDocument = Commande & Document;
 
 @Schema({ timestamps: true })
 export class Commande {
-  @Prop({ type: Types.ObjectId, ref: 'Pets', required: true })
-  petsId: Types.ObjectId | Pets;
+  @Prop({ type: [Types.ObjectId], ref: 'Pets', required: true })
+  petsId: Types.ObjectId[] | Pets[];
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   userId: Types.ObjectId | User;
@@ -18,13 +18,15 @@ export class Commande {
     enum: ['pending', 'in progress', 'completed', 'cancelled'],
     default: 'pending',
   })
-  status: string; 
+  status: string;
 
   @Prop({ type: Date, default: Date.now })
-  orderDate: Date; 
+  orderDate: Date;
 
   @Prop({ type: Number, required: true, min: 0 })
   totalAmount: number;
 }
+
+
 
 export const CommandeSchema = SchemaFactory.createForClass(Commande);
