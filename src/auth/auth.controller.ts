@@ -28,26 +28,24 @@ export class AuthController {
   )
   async register(
     @Body() userDTO: CreateAuthDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    console.log('DTO',userDTO)
+    console.log('DTO', userDTO);
+  
     try {
-      if (!file) {
-        throw new Error('File upload failed.');
+      let avatarUrl = null; 
+  
+      if (file) {
+        const bucketName = 'avatars';
+        console.log(bucketName);
+        const avatarFileName = await this.minioService.uploadFile(bucketName, file);
+        console.log(avatarFileName);
+        avatarUrl = `http://localhost:9000/${bucketName}/${avatarFileName}`;
+        console.log(avatarUrl);
       }
-
-      const bucketName = 'avatars';
-      console.log(bucketName)
-      const avatarFileName = await this.minioService.uploadFile(bucketName, file);
-      console.log(avatarFileName);
-      
-      const avatarUrl = `http://localhost:9000/${bucketName}/${avatarFileName}`;
-      console.log(avatarUrl);
-      
-    
-
+  
       const userRegistered = await this.authService.register(userDTO, avatarUrl);
-
+  
       return {
         message: 'User has been registered successfully',
         user: userRegistered,
@@ -56,6 +54,7 @@ export class AuthController {
       throw error;
     }
   }
+  
 
   
 
