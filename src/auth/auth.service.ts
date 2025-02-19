@@ -40,7 +40,7 @@ export class AuthService {
       email,
       password: hashedPassword,
       role: Role.Client,
-      avatar: avatarUrl,
+      avatar: avatarUrl || null,
     });
 
     return CreateUser.save();
