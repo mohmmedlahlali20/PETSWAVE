@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsEmail, MinLength, IsEnum } from 'class-validator';
+import { IsNotEmpty, IsString, IsEmail, MinLength, IsEnum, IsOptional } from 'class-validator';
 
 export enum Role {
   Client = 'client',
@@ -28,6 +28,7 @@ export class CreateAuthDto {
   role: Role;
 
 
-  @IsNotEmpty()
+  @IsString()
+  @IsOptional()
   avatar: string;
 }
