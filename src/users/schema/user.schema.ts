@@ -10,12 +10,18 @@ export class User {
   @Prop({ required: true })
   lastName: string;
   @Prop({ required: false })
-  avatar?: string
+  avatar?: string;
   @Prop({ required: true, unique: true })
   email: string;
   @Prop({ required: true })
   password: string;
   @Prop({ enum: ['client', 'admin'], default: 'client' })
   role: string;
+  @Prop()
+  otp?: number;
+  @Prop()
+  otpExpires?: Date;
+  @Prop({ default: false })
+  isVerified: boolean;
 }
 export const UserSchema = SchemaFactory.createForClass(User);
