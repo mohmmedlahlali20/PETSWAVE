@@ -8,10 +8,8 @@ import { Model } from 'mongoose';
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User.name) private readonly UsersModule: Model<UserDocument>){}
-
-
-
+    @InjectModel(User.name) private readonly UsersModule: Model<UserDocument>,
+  ) {}
 
   create(createUserDto: CreateUserDto) {
     return 'This action adds a new user';
