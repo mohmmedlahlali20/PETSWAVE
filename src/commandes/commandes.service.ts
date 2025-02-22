@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCommandeDto } from './dto/create-commande.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Commande, CommandeDocument } from './schema/command.schema';
@@ -12,28 +12,34 @@ export class CommandesService {
     @InjectModel(Pets.name) private readonly petsModel: Model<PetsDocument>,
   ) {}
 
-  async create(commendsDTO: CreateCommandeDto): Promise<CommandeDocument> {
-    const pets = await this.petsModel.find({ _id: { $in: commendsDTO.petsId } });
-    if (!pets || pets.length === 0) {
-        throw new Error('No valid pets found');
+  async create(commandsDTO: CreateCommandeDto): Promise<CommandeDocument> {
+    const pets = await this.petsModel.find({ _id: { $in: commandsDTO.petsId } });
+
+    if (!pets.length) {
+        throw new BadRequestException('No valid pets found');
     }
+
     const totalAmount = pets.reduce((sum, pet) => sum + pet.Prix, 0);
-    if (commendsDTO.totalAmount!== totalAmount) {
-        throw new Error('Total amount does not match the sum of pet prices');
+    console.log(totalAmount);
+    
+
+    if (commandsDTO.totalAmount !== undefined && Math.abs(commandsDTO.totalAmount - totalAmount) > 0.01) {
+        throw new BadRequestException('Total amount does not match the sum of pet prices');
     }
-    const commandeData = {
-        ...commendsDTO,
-        totalAmount,
-    };
-    const newCommande = new this.commandeModel(commandeData);
-    const savedCommande = await newCommande.save();
+
+    const newCommande = await this.commandeModel.create({ 
+        ...commandsDTO, 
+        totalAmount 
+    });
+
     await this.petsModel.updateMany(
-        { _id: { $in: commendsDTO.petsId } },
+        { _id: { $in: commandsDTO.petsId } },
         { isAvailable: false }
     );
 
-    return savedCommande;
+    return newCommande;
 }
+
 
 
 
