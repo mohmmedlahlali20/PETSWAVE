@@ -28,7 +28,7 @@ export class PetsController {
       const fileName = await this.minioService.uploadFile(bucketName, file);
       console.log(fileName);
 
-      imagePaths.push(`http://localhost:9000/${bucketName}/${fileName}`);
+      imagePaths.push(`http://127.0.0.1:9000/${bucketName}/${fileName}`);
     }
 
     return this.petsService.create(createPetDto, imagePaths);
