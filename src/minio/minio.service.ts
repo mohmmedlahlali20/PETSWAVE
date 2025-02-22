@@ -7,7 +7,7 @@ export class MinioService {
   constructor() {
     console.log( process.env.MINIO_ENDPOINT)
     this.minioClient = new Client({
-      endPoint: 'localhost',
+      endPoint: '127.0.0.1',
       port: 9000,
       useSSL: false,
       accessKey:'UXPbLVXbuaRKTQywBg98',
