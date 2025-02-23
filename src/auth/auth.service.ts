@@ -63,6 +63,10 @@ export class AuthService {
     return { token };
   }
 
+
+
+
+  
   async forgetPassword(email: string): Promise<any> {
     const user = await this.userModel.findOne({ email });
 
@@ -80,6 +84,8 @@ export class AuthService {
 
     return { message: 'OTP sent to email' };
 }
+
+
 async sendOtpEmail(email: string, otp: number) {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -93,7 +99,7 @@ async sendOtpEmail(email: string, otp: number) {
     from: process.env.EMAIL_USER,
     to: email,
     subject: 'Your OTP Code',
-    text: `Your OTP code is: ${otp}. It will expire in 10 minutes.`,
+    html: generateOtpEmail(otp),
   };
 
   await transporter.sendMail(mailOptions);
@@ -121,24 +127,24 @@ async verifyOtp(email: string, otp: number): Promise<any> {
 
 
 
-async resetPassword(token: string, newPassword: string): Promise<any> {
-  try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
-      const user = await this.userModel.findById(decoded.id);
+async resetPassword(email: string, newPassword: string): Promise<any> {
+  const user = await this.userModel.findOne({ email });
 
-      if (!user) {
-          throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
-      }
-
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-      user.password = hashedPassword;
-      await user.save();
-
-      return { message: 'Password reset successful' };
-  } catch (error) {
-      throw new HttpException('Invalid or expired token', HttpStatus.UNAUTHORIZED);
+  if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
   }
+
+  if (user.otp !== undefined) {
+      throw new HttpException('OTP verification required', HttpStatus.FORBIDDEN);
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  user.password = hashedPassword;
+  await user.save();
+
+  return { message: 'Password reset successful' };
 }
+
 
   async uploadProfile(userId: string, avatar: string): Promise<any> {
     const user = await this.userModel.findById(userId);
@@ -152,4 +158,66 @@ async resetPassword(token: string, newPassword: string): Promise<any> {
 
     return user;
   }
+}
+
+
+
+
+function generateOtpEmail(otp) {
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 500px;
+        margin: 30px auto;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      .header {
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 20px;
+      }
+      .otp {
+        font-size: 28px;
+        font-weight: bold;
+        color: #007BFF;
+        margin: 20px 0;
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 5px;
+        background: #e9f5ff;
+      }
+      .footer {
+        font-size: 14px;
+        color: #777;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">Your OTP Code</div>
+      <p>Please use the following OTP to verify your account. This OTP is valid for 10 minutes.</p>
+      <div class="otp">${otp}</div>
+      <p>If you did not request this, please ignore this email.</p>
+      <div class="footer">&copy; ${new Date().getFullYear()} PetsWave. All rights reserved.</div>
+    </div>
+  </body>
+  </html>
+  `;
 }
