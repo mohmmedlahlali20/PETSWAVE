@@ -47,9 +47,10 @@ export class CommandesService {
     return this.commandeModel.find().populate('userId').populate('petsId');
   }
 
-  async getCommandeByUserId(userId: string): Promise<CommandeDocument> {
-    return this.commandeModel.findOne({ userId }).populate('userId').populate('petsId');
-  }
+  async getCommandeByUserId(userId: string): Promise<CommandeDocument[]> {
+  return this.commandeModel.find({ userId }).populate('userId').populate('petsId');
+}
+
 
   
 
