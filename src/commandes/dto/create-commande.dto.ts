@@ -2,7 +2,7 @@ import { IsMongoId, IsNotEmpty, IsNumber } from "class-validator";
 
 export interface status {
     Pending: 'pending',
-    InProgress: 'in progress',
+    InProgress: 'InProgress',
     Completed: 'completed',
     Cancelled: 'cancelled'
 }

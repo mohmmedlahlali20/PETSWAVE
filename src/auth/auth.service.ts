@@ -7,13 +7,15 @@ import { User } from 'src/users/schema/user.schema';
 import * as nodemailer from 'nodemailer';
 import { JwtService } from '@nestjs/jwt';
 import { CreateAuthDto, Role } from './dto/create-auth.dto';
+import { MinioService } from 'src/minio/minio.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
     private readonly jwtService: JwtService,
-  ) {}
+    private readonly minioService: MinioService,
+  ) { }
 
   async register(userDto: CreateAuthDto, avatarUrl: string): Promise<any> {
     const { firstName, lastName, email, password, role } = userDto;
@@ -40,7 +42,7 @@ export class AuthService {
     return CreateUser.save();
   }
 
-  async login(email: string, password: string): Promise<{ token: string }> {
+  async login(email: string, password: string): Promise<{ token: string, user: User }> {
     console.log('email', email);
     const user = await this.userModel.findOne({ email });
     console.log('user', user);
@@ -60,105 +62,125 @@ export class AuthService {
     const payload = { email: user.email, id: user._id, role: user.role };
     const token = this.jwtService.sign(payload);
 
-    return { token };
+    return { token, user };
   }
 
 
 
 
-  
+
   async forgetPassword(email: string): Promise<any> {
     const user = await this.userModel.findOne({ email });
 
     if (!user) {
-        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000);
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); 
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
     user.otp = otp;
     user.otpExpires = otpExpires;
     await user.save();
 
-    await this.sendOtpEmail(email, otp); 
+    await this.sendOtpEmail(email, otp);
 
     return { message: 'OTP sent to email' };
-}
-
-
-async sendOtpEmail(email: string, otp: number) {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: 'Your OTP Code',
-    html: generateOtpEmail(otp),
-  };
-
-  await transporter.sendMail(mailOptions);
-}
-
-
-async verifyOtp(email: string, otp: number): Promise<any> {
-  const user = await this.userModel.findOne({ email });
-
-  if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
   }
 
-  if (!user.otp || user.otp !== otp || new Date() > user.otpExpires) {
+
+  async sendOtpEmail(email: string, otp: number) {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Your OTP Code',
+      html: generateOtpEmail(otp),
+    };
+
+    await transporter.sendMail(mailOptions);
+  }
+
+
+  async verifyOtp(email: string, otp: number): Promise<any> {
+    const user = await this.userModel.findOne({ email });
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (!user.otp || user.otp !== otp || new Date() > user.otpExpires) {
       throw new HttpException('Invalid or expired OTP', HttpStatus.BAD_REQUEST);
+    }
+
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+
+    return { message: 'OTP verified successfully' };
   }
 
-  user.otp = undefined;
-  user.otpExpires = undefined;
-  await user.save();
-
-  return { message: 'OTP verified successfully' };
-}
 
 
 
+  async resetPassword(email: string, newPassword: string): Promise<any> {
+    const user = await this.userModel.findOne({ email });
 
-async resetPassword(email: string, newPassword: string): Promise<any> {
-  const user = await this.userModel.findOne({ email });
-
-  if (!user) {
+    if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-  }
+    }
 
-  if (user.otp !== undefined) {
+    if (user.otp !== undefined) {
       throw new HttpException('OTP verification required', HttpStatus.FORBIDDEN);
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    return { message: 'Password reset successful' };
   }
 
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-  user.password = hashedPassword;
-  await user.save();
 
-  return { message: 'Password reset successful' };
-}
-
-
-  async uploadProfile(userId: string, avatar: string): Promise<any> {
+  async uploadAvatar(userId: string, file: Express.Multer.File): Promise<User> {
     const user = await this.userModel.findById(userId);
 
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    user.avatar = avatar;
+    if (!file) {
+      throw new HttpException('No file provided', HttpStatus.BAD_REQUEST);
+    }
+
+    const bucketName = 'avatars';
+    const avatarFileName = await this.minioService.uploadFile(bucketName, file);
+    const avatarUrl = `http://localhost:9000/${bucketName}/${avatarFileName}`;
+
+    user.avatar = avatarUrl;
     await user.save();
 
     return user;
   }
+
+  async profile(userId: string): Promise<User> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return user;
+  }
 }
+
+
+
+
 
 
 

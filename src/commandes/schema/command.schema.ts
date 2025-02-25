@@ -15,7 +15,7 @@ export class Commande {
 
   @Prop({
     type: String,
-    enum: ['pending', 'in progress', 'completed', 'cancelled'],
+    enum: ['pending', 'InProgress', 'completed', 'cancelled'],
     default: 'pending',
   })
   status: string;
