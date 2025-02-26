@@ -148,26 +148,18 @@ export class AuthService {
   }
 
 
-  async uploadAvatar(userId: string, file: Express.Multer.File): Promise<User> {
+  async updateAvatar(userId: string, avatarUrl: string) {
     const user = await this.userModel.findById(userId);
-
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-
-    if (!file) {
-      throw new HttpException('No file provided', HttpStatus.BAD_REQUEST);
-    }
-
-    const bucketName = 'avatars';
-    const avatarFileName = await this.minioService.uploadFile(bucketName, file);
-    const avatarUrl = `http://localhost:9000/${bucketName}/${avatarFileName}`;
-
-    user.avatar = avatarUrl;
+    
+    user.avatar = avatarUrl; 
     await user.save();
-
-    return user;
+    
+    return user; 
   }
+  
 
   async profile(userId: string): Promise<User> {
     const user = await this.userModel.findById(userId);
