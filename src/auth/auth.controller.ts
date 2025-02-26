@@ -58,31 +58,24 @@ export class AuthController {
 
 
   @Patch('/update-profile/:userId')
-  @UseInterceptors(
-    FileInterceptor('avatar', {
-      fileFilter: (req, file, callback) => {
-        if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
-          return callback(new Error('Only image files are allowed!'), false);
-        }
-        callback(null, true);
-      },
-    }),
-  )
-  async updateUserAvatar(
-    @Param('userId') userId: string,
-    @UploadedFile() file?: Express.Multer.File,
-  ) {
-    if (!file) {
-      throw new HttpException('Avatar file is required', HttpStatus.BAD_REQUEST);
-    }
-
-    const updatedUser = await this.authService.uploadAvatar(userId, file);
-    
-    return {
-      message: 'Profile updated successfully',
-      user: updatedUser,
-    };
+async updateUserAvatar(
+  @Param('userId') userId: string,
+  @Body('avatar') avatarUrl: string,
+) {
+  console.log(avatarUrl);
+  
+  if (!avatarUrl) {
+    throw new HttpException('Avatar URL is required', HttpStatus.BAD_REQUEST);
   }
+
+  const updatedUser = await this.authService.updateAvatar(userId, avatarUrl);
+
+  return {
+    message: 'Profile updated successfully',
+    user: updatedUser,
+  };
+}
+
 
 
 
