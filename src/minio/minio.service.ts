@@ -5,7 +5,7 @@ import { Client } from 'minio';
 export class MinioService {
   private minioClient: Client;
   constructor() {
-    console.log( process.env.MINIO_ENDPOINT)
+    // console.log( process.env.MINIO_ENDPOINT)
     this.minioClient = new Client({
       endPoint: '127.0.0.1',
       port: 9000,
