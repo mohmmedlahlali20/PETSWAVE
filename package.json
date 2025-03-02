@@ -30,6 +30,7 @@
     "@nestjs/serve-static": "^4.0.2",
     "bcryptjs": "^2.4.3",
     "class-validator": "^0.14.1",
+    "dotenv": "^16.4.7",
     "jsonwebtoken": "^9.0.2",
     "minio": "^8.0.3",
     "mongoose": "^8.9.0",
