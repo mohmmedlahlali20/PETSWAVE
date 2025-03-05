@@ -11,12 +11,8 @@ export class CategoryService {
   constructor(@InjectModel(Category.name) private categoryModel: Model<Category>) { }
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
-    console.log('Received Category Data:', createCategoryDto);
-
     const newCategory = new this.categoryModel(createCategoryDto);
     const savedCategory = await newCategory.save();
-
-    console.log('Saved Category:', savedCategory);
     return savedCategory;
   }
 
