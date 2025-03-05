@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { PetsModule } from './pets/pets.module';
 import { CategoryModule } from './category/category.module';
 import { CommandesModule } from './commandes/commandes.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { CommandesModule } from './commandes/commandes.module';
     PetsModule,
     CategoryModule,
     CommandesModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
