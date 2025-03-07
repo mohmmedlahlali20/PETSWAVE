@@ -14,5 +14,5 @@ export class CreateCommentDto {
 
     @IsMongoId()
     @IsNotEmpty()
-    CreatedBy: string
+    createdBy: string
 }
