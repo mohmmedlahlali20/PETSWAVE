@@ -8,13 +8,13 @@ export class CommentsController {
 
   @Post(':CreatedBy')
   create(
-    @Param('CreatedBy') CreatedBy: string,
+    @Param('CreatedBy') createdBy: string,
     @Body() createCommentDto: CreateCommentDto
   ) {
-    return this.commentsService.create({ ...createCommentDto, CreatedBy });
+    return this.commentsService.create({ ...createCommentDto, createdBy });
   }
 
-  @Get()
+  @Get('findAll')
   findAll() {
     return this.commentsService.findAll();
   }
@@ -24,8 +24,8 @@ async getCommentsByPetId(@Param('petId') petId: string) {
   return await this.commentsService.getAllCommentsByPetId(petId);
 }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.commentsService.remove(id);
+  @Delete(':commentId')
+  remove(@Param('commentId') commentId: string) {
+    return this.commentsService.remove(commentId);
   }
 }

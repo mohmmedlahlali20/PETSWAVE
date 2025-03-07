@@ -11,7 +11,7 @@ export class Comments {
     text: string
 
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
-    CreatedBy: Types.ObjectId;
+    createdBy: Types.ObjectId;
 
 
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Pets', required: true })

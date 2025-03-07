@@ -24,6 +24,7 @@ export class CommentsService {
         .populate('petsId')
         .populate('createdBy')
         .exec();
+        
 
       return comments.length ? comments : [];
     } catch (err) {
@@ -35,7 +36,7 @@ export class CommentsService {
     try {  
       const comments = await this.commentsModel
         .find({ petsId })
-        .populate('CreatedBy')
+        .populate('createdBy')
         .populate('petsId')
         .exec();
       if (comments.length === 0) {
