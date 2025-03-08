@@ -11,7 +11,7 @@ export class CommentsService {
   async create(createCommentDto: CreateCommentDto): Promise<Comments> {
     try {
       const writeComment = new this.commentsModel(createCommentDto);
-      return await writeComment.save();
+      return (await writeComment.save()).populate('createdBy');
     } catch (error) {
       throw new InternalServerErrorException('Failed to create comment');
     }
