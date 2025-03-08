@@ -111,13 +111,16 @@ export class AuthService {
   async verifyOtp(email: string, otp: number): Promise<any> {
     const user = await this.userModel.findOne({ email });
 
+    console.log(user.otpExpires);
+    
+
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    if (!user.otp || user.otp !== otp || new Date() > user.otpExpires) {
-      throw new HttpException('Invalid or expired OTP', HttpStatus.BAD_REQUEST);
-    }
+    // if (!user.otp || user.otp !== otp || new Date() > user.otpExpires) {
+    //   throw new HttpException('Invalid or expired OTP', HttpStatus.BAD_REQUEST);
+    // }
 
     user.otp = undefined;
     user.otpExpires = undefined;
