@@ -11,10 +11,9 @@ export class CategoryService {
   constructor(@InjectModel(Category.name) private categoryModel: Model<Category>) { }
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
-    const newCategory = new this.categoryModel(createCategoryDto);
-    const savedCategory = await newCategory.save();
-    return savedCategory;
+    return await this.categoryModel.create(createCategoryDto);
   }
+  
 
   async findAll(): Promise<Category[]>{
     try {
