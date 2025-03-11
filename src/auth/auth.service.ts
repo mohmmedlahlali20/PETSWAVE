@@ -3,11 +3,11 @@ import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from 'src/users/schema/user.schema';
 import * as nodemailer from 'nodemailer';
 import { JwtService } from '@nestjs/jwt';
 import { CreateAuthDto, Role } from './dto/create-auth.dto';
 import { MinioService } from 'src/minio/minio.service';
+import { User } from 'src/users/schema/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +18,7 @@ export class AuthService {
   ) { }
 
   async register(userDto: CreateAuthDto, avatarUrl: string): Promise<any> {
-    const { firstName, lastName, email, password, role } = userDto;
+    const { firstName, lastName, email, password   } = userDto;
 
     console.log(userDto)
 

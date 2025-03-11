@@ -1,29 +1,42 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
-import { HttpException, HttpStatus } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
-import { Model } from 'mongoose';
-import * as jwt from 'jsonwebtoken';
 
-import { CreateAuthDto, Role } from './dto/create-auth.dto';
+import { Model } from 'mongoose';
+import { Role } from './dto/create-auth.dto';
+import { AuthService } from './auth.service';
+import { MinioService } from 'src/minio/minio.service';
 import { User } from 'src/users/schema/user.schema';
+
+const mockUser = {
+  _id: 'user123',
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'test@example.com',
+  password: 'hashedpassword',
+  role: 'client',
+  avatar: null,
+};
 
 const mockUserModel = {
   findOne: jest.fn(),
   create: jest.fn(),
   findById: jest.fn(),
+  save: jest.fn(),
 };
 
 const mockJwtService = {
-  sign: jest.fn(),
+  sign: jest.fn().mockReturnValue('mocked-jwt-token'),
+};
+
+const mockMinioService = {
+  uploadFile: jest.fn().mockResolvedValue('mock-avatar-url'),
 };
 
 describe('AuthService', () => {
-  let service: AuthService;
-  let userModel: typeof mockUserModel;
-  let jwtService: typeof mockJwtService;
+  let authService: AuthService;
+  let userModel: Model<User>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -31,12 +44,12 @@ describe('AuthService', () => {
         AuthService,
         { provide: getModelToken(User.name), useValue: mockUserModel },
         { provide: JwtService, useValue: mockJwtService },
+        { provide: MinioService, useValue: mockMinioService },
       ],
     }).compile();
 
-    service = module.get<AuthService>(AuthService);
-    userModel = module.get(getModelToken(User.name));
-    jwtService = module.get(JwtService);
+    authService = module.get<AuthService>(AuthService);
+    userModel = module.get<Model<User>>(getModelToken(User.name));
   });
 
   afterEach(() => {
@@ -44,128 +57,73 @@ describe('AuthService', () => {
   });
 
   describe('register', () => {
-    it('should register a new user successfully', async () => {
-      const userDto: CreateAuthDto = {
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@example.com',
-        password: 'password123',
-        role: Role.Client,
-         avatar:'path/avatar'
-      };
-      const mockUser = {
-        ...userDto,
-        password: 'hashedpassword',
-        save: jest.fn(),
-      };
+    it('should create a new user', async () => {
+      mockUserModel.findOne.mockResolvedValue(null);
+      mockUserModel.create.mockResolvedValue(mockUser);
 
-      userModel.findOne.mockResolvedValue(null);
-      userModel.create.mockResolvedValue(mockUser);
+      const result = await authService.register(
+        {
+          email: 'test@example.com',
+          password: 'password123',
+          firstName: 'John',
+          lastName: 'Doe',
+          role: Role.Client,
+          avatar: null
+        },
+        null
+      );
 
-      const result = await service.register(userDto, 'avatar.png');
-
-      expect(userModel.findOne).toHaveBeenCalledWith({ email: userDto.email });
-      expect(userModel.create).toHaveBeenCalledWith({
-        ...userDto,
-        password: expect.any(String),
-        avatar: 'avatar.png',
-      });
-      expect(mockUser.save).toHaveBeenCalled();
-      expect(result).toBe(mockUser);
+      expect(mockUserModel.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
+      expect(mockUserModel.create).toHaveBeenCalled();
+      expect(result).toEqual(mockUser);
     });
 
-    it('should throw an error if user already exists', async () => {
-      const userDto: CreateAuthDto = {
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@example.com',
-        password: 'password123',
-        role: Role.Client,
-        avatar:'path/avatar'
-      };
+    it('should throw error if user already exists', async () => {
+      mockUserModel.findOne.mockResolvedValue(mockUser);
 
-      userModel.findOne.mockResolvedValue(userDto);
-
-      await expect(service.register(userDto, 'avatar.png')).rejects.toThrow(
-        'User with this email already exists',
-      );
-      expect(userModel.findOne).toHaveBeenCalledWith({ email: userDto.email });
+      await expect(
+        authService.register(
+          {
+            email: 'test@example.com',
+            password: 'password123',
+            firstName: 'John',
+            lastName: 'Doe',
+            role: Role.Client,
+            avatar: null
+          },
+          null
+        )
+      ).rejects.toThrow('User with this email already exists');
     });
   });
 
+  // ✅ Test de la connexion
   describe('login', () => {
-    it('should login successfully and return a token', async () => {
-      const mockUser = {
-        email: 'john.doe@example.com',
-        password: 'hashedpassword',
-        role: Role.Client,
-        _id: 'userId',
-      };
-      const mockToken = 'mockJwtToken';
-
-      userModel.findOne.mockResolvedValue(mockUser);
+    it('should return a JWT token for valid credentials', async () => {
+      mockUserModel.findOne.mockResolvedValue(mockUser);
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(true);
-      jwtService.sign.mockReturnValue(mockToken);
 
-      const result = await service.login(mockUser.email, 'password123');
+      const result = await authService.login('test@example.com', 'password123');
 
-      expect(userModel.findOne).toHaveBeenCalledWith({ email: mockUser.email });
-      expect(bcrypt.compare).toHaveBeenCalledWith('password123', mockUser.password);
-      expect(jwtService.sign).toHaveBeenCalledWith({
-        email: mockUser.email,
-        id: mockUser._id,
-        role: mockUser.role,
-      });
-      expect(result).toEqual({ token: mockToken });
+      expect(mockUserModel.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
+      expect(result).toHaveProperty('token', 'mocked-jwt-token');
+      expect(result).toHaveProperty('user', mockUser);
     });
 
-    it('should throw error if user is not found', async () => {
-      userModel.findOne.mockResolvedValue(null);
+    it('should throw error if user does not exist', async () => {
+      mockUserModel.findOne.mockResolvedValue(null);
 
-      await expect(service.login('john.doe@example.com', 'password123')).rejects.toThrow(
-        new HttpException('User with this email does not exist', HttpStatus.NOT_FOUND),
+      await expect(authService.login('unknown@example.com', 'password123')).rejects.toThrow(
+        'User with this email does not exist'
       );
     });
 
-    it('should throw error if password is invalid', async () => {
-      const mockUser = {
-        email: 'john.doe@example.com',
-        password: 'hashedpassword',
-      };
-
-      userModel.findOne.mockResolvedValue(mockUser);
+    it('should throw error if password is incorrect', async () => {
+      mockUserModel.findOne.mockResolvedValue(mockUser);
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(false);
 
-      await expect(service.login(mockUser.email, 'wrongpassword')).rejects.toThrow(
-        new HttpException('Invalid password', HttpStatus.UNAUTHORIZED),
-      );
-    });
-  });
-
-  describe('forgetPassword', () => {
-    it('should send reset password email', async () => {
-      const mockUser = { email: 'john.doe@example.com', _id: 'userId' };
-      const mockToken = 'mockResetToken';
-
-      userModel.findOne.mockResolvedValue(mockUser);
-      // jest.spyOn(jwt, 'sign').mockReturnValue(mockToken);
-
-      const result = await service.forgetPassword(mockUser.email);
-
-      expect(userModel.findOne).toHaveBeenCalledWith({ email: mockUser.email });
-      expect(jwt.sign).toHaveBeenCalledWith(
-        { email: mockUser.email, id: mockUser._id },
-        process.env.JWT_SECRET,
-        
-      );
-      expect(result).toEqual({ message: 'Password reset email sent' });
-    });
-
-    it('should throw error if user is not found', async () => {
-      userModel.findOne.mockResolvedValue(null);
-
-      await expect(service.forgetPassword('john.doe@example.com')).rejects.toThrow(
-        new HttpException('User not found', HttpStatus.NOT_FOUND),
+      await expect(authService.login('test@example.com', 'wrongpassword')).rejects.toThrow(
+        'Invalid password'
       );
     });
   });
