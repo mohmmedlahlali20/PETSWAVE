@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  petswave-backend:
+    build: ./PETSWAVE
+    ports:
+      - "5001:5000"
+    environment:
+      - PORT=5000
+      - Mongo_URI=mongodb://mongo:27017/PetsWave
+      - EMAIL_USER=mohmmedlaeh81@gmail.com
+      - EMAIL_PASS=hgfwsbhzvzpwixkq
+      - JWT_SECRET=JWTsecreteKEy
+    depends_on:
+      - mongo
+    networks:
+      - petswave-network
+
+  uploader:
+    build: ./uploader
+    container_name: uploader
+    ports:
+      - "4001:4000" 
+    environment:
+      - MINIO_ENDPOINT=127.0.0.1
+      - MINIO_PORT=9000
+      - MINIO_USE_SSL=false
+      - MINIO_ACCESS_KEY=Oq595Jk8Jdlc1hJT6wRS
+      - MINIO_SECRET_KEY=SjsrZm4DMDZsNhRMlcbZNoTerbuHSy6oxHzFvwsE
+    networks:
+      - petswave-network
+
+  mobile-app:
+    build: ./PetsWave_mobile_app
+    ports:
+      - "8085:8081"
+    environment:
+      - EXPO_PUBLIC_URL=172.29.0.1
+    networks:
+      - petswave-network
+    stdin_open: true
+    tty: true
+
+  admin-dashboard:
+    build: ./petswaveAdmin
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_NEST_API_URL=http://localhost:5000/
+    networks:
+      - petswave-network
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - petswave-network
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - "9005:9000"
+      - "9006:9001"
+    environment:
+      - MINIO_ROOT_USER=Oq595Jk8Jdlc1hJT6wRS
+      - MINIO_ROOT_PASSWORD=SjsrZm4DMDZsNhRMlcbZNoTerbuHSy6oxHzFvwsE
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - petswave-network
+
+networks:
+  petswave-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  minio-data:
