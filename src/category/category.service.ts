@@ -7,29 +7,37 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class CategoryService {
-
-  constructor(@InjectModel(Category.name) private categoryModel: Model<Category>) { }
+  constructor(@InjectModel(Category.name) private categoryModel: Model<Category>) {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
     return await this.categoryModel.create(createCategoryDto);
   }
-  
 
-  async findAll(): Promise<Category[]>{
+  async findAll(): Promise<Category[]> {
     try {
-      const category = await this.categoryModel.find().exec()
-      if(category.length === 0 ){
-        console.log('no category found')
-        return []
+      const categories = await this.categoryModel.find().exec();
+      if (categories.length === 0) {
+        console.log('No categories found');
+        return [];
       }
-      return category
+      return categories;
     } catch (err) {
-      console.error('Error while fetching all category:', err);
-      throw new Error('Failed to get all category');
+      console.error('Error while fetching all categories:', err);
+      throw new Error('Failed to get all categories');
     }
-
   }
 
-
-
+  async removeCategory(categoryId: string): Promise<Category | null> {
+    try {
+      const category = await this.categoryModel.findByIdAndDelete(categoryId).exec();
+      if (!category) {
+        console.log('Category not found');
+        return null;
+      }
+      return category;
+    } catch (err) {
+      console.error('Error while removing category:', err);
+      throw new Error('Failed to remove category');
+    }
+  }
 }
