@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Category } from './schema/cateogry.schema';
 
 @Controller('category')
 export class CategoryController {
@@ -27,4 +28,13 @@ export class CategoryController {
       return { message: 'Category not found' };
     }
   }
+
+  @Put(':id')
+  async update(
+    @Param('id') categoryId: string,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ): Promise<Category | null> {
+    return this.categoryService.updateCategory(updateCategoryDto, categoryId);
+  }
+
 }
