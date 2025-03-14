@@ -40,4 +40,26 @@ export class CategoryService {
       throw new Error('Failed to remove category');
     }
   }
+
+
+  async updateCategory(updateDto: UpdateCategoryDto, categoryId: string): Promise<Category> {
+    try {
+      const updatedCategory = await this.categoryModel.findByIdAndUpdate(
+        categoryId,
+        { $set: updateDto },
+        { new: true }
+      ).exec();
+  
+      if (!updatedCategory) {
+        console.log('Category not found');
+        return null;
+      }
+  
+      return updatedCategory;
+    } catch (err) {
+      console.error('Error while updating category:', err);
+      throw new Error('Failed to update category');
+    }
+  }
+  
 }
