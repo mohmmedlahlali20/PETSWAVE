@@ -18,4 +18,13 @@ export class CategoryController {
     return this.categoryService.findAll()
   }
 
+  @Delete(':categoryId')
+  async removeCategory(@Param('categoryId') categoryId: string) {
+    const deletedCategory = await this.categoryService.removeCategory(categoryId);
+    if (deletedCategory) {
+      return { message: 'Category deleted successfully', deletedCategory };
+    } else {
+      return { message: 'Category not found' };
+    }
+  }
 }
