@@ -19,9 +19,9 @@ import {
 
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
-import { MinioService } from 'src/minio/minio.service';
-import { JwtAuthGuard } from 'src/guards/auth.guard';
-import { Roles } from 'src/common/Role.decrotor';
+import { MinioService } from '../minio/minio.service';
+import { JwtAuthGuard } from '../guards/auth.guard';
+import { Roles } from '../common/Role.decrotor';
 
 @Controller('pets')
 @UseGuards(JwtAuthGuard)
