@@ -1,12 +1,26 @@
-import { Controller, Post, Body, UseInterceptors, UploadedFiles, Get, Param, Delete, Patch, NotFoundException, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseInterceptors,
+  UploadedFiles,
+  Get,
+  Param,
+  Delete,
+  Patch,
+  NotFoundException,
+  UseGuards,
+} from '@nestjs/common';
 import { PetsService } from './pets.service';
-import { FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FilesInterceptor,
+} from '@nestjs/platform-express';
 
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
 import { MinioService } from 'src/minio/minio.service';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
-import { RolesGuard } from 'src/guards/admin.guard';
 import { Roles } from 'src/common/Role.decrotor';
 
 @Controller('pets')
@@ -14,15 +28,15 @@ import { Roles } from 'src/common/Role.decrotor';
 export class PetsController {
   constructor(
     private readonly petsService: PetsService,
-    private readonly minioService: MinioService
-  ) { }
+    private readonly minioService: MinioService,
+  ) {}
 
   @Post('/create')
-  // @Roles('Admin')
+  @Roles('Admin')
   @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 8 }]))
   async create(
     @Body() createPetDto: CreatePetDto,
-    @UploadedFiles() files: { images?: Express.Multer.File[] }
+    @UploadedFiles() files: { images?: Express.Multer.File[] },
   ) {
     const bucketName = 'pets-bucket';
     const imagePaths = [];
@@ -37,16 +51,15 @@ export class PetsController {
     return this.petsService.create(createPetDto, imagePaths);
   }
 
-
   @Get('/findAll')
   async findAllPets() {
-    return this.petsService.getAllPets()
+    return this.petsService.getAllPets();
   }
 
   @Get('/findAllForAdmin')
   @Roles('admin')
   async findAllPetsForAdmin() {
-    return this.petsService.getAllPetsForAdmin()
+    return this.petsService.getAllPetsForAdmin();
   }
 
   @Get('/findByPetsId/:id')
@@ -58,16 +71,14 @@ export class PetsController {
     return pet;
   }
 
-
-
   @Get('/getPetsByCategoryID/:categoryId')
   async getPetsByCategoryId(@Param('categoryId') categoryId: string) {
-    return this.petsService.getPetsByCategoryID(categoryId)
+    return this.petsService.getPetsByCategoryID(categoryId);
   }
 
   @Delete('/delete/:petsId')
   async deletePets(@Param('petsId') petsId: string) {
-    return this.petsService.removePets(petsId)
+    return this.petsService.removePets(petsId);
   }
 
   @Patch('/update/:petsId')
@@ -78,7 +89,7 @@ export class PetsController {
     @UploadedFiles() files: Express.Multer.File[],
   ): Promise<any> {
     try {
-      const imagePaths = files?.map(file => file.path) || [];
+      const imagePaths = files?.map((file) => file.path) || [];
 
       const existingPet = await this.petsService.getPetsById(petsId);
 
@@ -88,7 +99,10 @@ export class PetsController {
 
       const updatedImages = [...existingPet.images, ...imagePaths];
 
-      const updatedPet = await this.petsService.update(petsId, { ...updateDTO, images: updatedImages });
+      const updatedPet = await this.petsService.update(petsId, {
+        ...updateDTO,
+        images: updatedImages,
+      });
 
       return {
         message: 'Pet updated successfully',
@@ -99,14 +113,4 @@ export class PetsController {
       throw new Error('Failed to update pet');
     }
   }
-
-
-
-
-
-
-
-
-
-
 }
