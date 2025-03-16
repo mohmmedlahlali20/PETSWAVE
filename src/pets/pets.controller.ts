@@ -6,9 +6,11 @@ import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
 import { MinioService } from 'src/minio/minio.service';
 import { JwtAuthGuard } from 'src/guards/auth.guard';
+import { RolesGuard } from 'src/guards/admin.guard';
+import { Roles } from 'src/common/Role.decrotor';
 
 @Controller('pets')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class PetsController {
   constructor(
     private readonly petsService: PetsService,
@@ -16,6 +18,7 @@ export class PetsController {
   ) { }
 
   @Post('/create')
+  // @Roles('Admin')
   @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 8 }]))
   async create(
     @Body() createPetDto: CreatePetDto,
@@ -41,6 +44,7 @@ export class PetsController {
   }
 
   @Get('/findAllForAdmin')
+  @Roles('admin')
   async findAllPetsForAdmin() {
     return this.petsService.getAllPetsForAdmin()
   }
