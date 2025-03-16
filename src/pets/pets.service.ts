@@ -1,25 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { Pets, PetsDocument } from './schema/pets.schema';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { PetsResponse } from './dto/pets-response.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
-import { log } from 'node:console';
+
 
 @Injectable()
 export class PetsService {
-  constructor(@InjectModel(Pets.name) private readonly petsModel: Model<PetsDocument>) {}
+  constructor(
+    @InjectModel(Pets.name) private readonly petsModel: Model<PetsDocument>,
+  ) {}
 
-  async create(createPetDto: CreatePetDto, imagePaths: string[]): Promise<Pets> {
+  async create(
+    createPetDto: CreatePetDto,
+    imagePaths: string[],
+  ): Promise<Pets> {
     const petData = {
       ...createPetDto,
       images: imagePaths,
     };
 
     console.log('Pet Data:', petData);
-    
-  
+
     const newPet = new this.petsModel(petData);
     return newPet.save();
   }
@@ -37,11 +41,12 @@ export class PetsService {
       throw new Error('Failed to get pet by ID');
     }
   }
-  
 
   async getAllPets(): Promise<PetsResponse> {
     try {
-      const pets = await this.petsModel.find({isAvailable: true}).populate('category');
+      const pets = await this.petsModel
+        .find({ isAvailable: true })
+        .populate('category');
 
       if (pets.length === 0) {
         console.log('No Pets found');
@@ -54,7 +59,7 @@ export class PetsService {
       throw new Error('Failed to get all pets');
     }
   }
-  
+
   async getAllPetsForAdmin(): Promise<PetsResponse> {
     try {
       const pets = await this.petsModel.find().populate('category');
@@ -73,7 +78,9 @@ export class PetsService {
 
   async getPetsByCategoryID(categoryId: string): Promise<PetsResponse> {
     try {
-      const pets = await this.petsModel.find({ category: categoryId }).populate('category');
+      const pets = await this.petsModel
+        .find({ category: categoryId })
+        .populate('category');
 
       if (pets.length === 0) {
         console.log(`No pets found for category ID: ${categoryId}`);
@@ -87,7 +94,9 @@ export class PetsService {
     }
   }
 
-  async removePets(petsId: string): Promise<{ message: string; deletedPet?: Pets }> {
+  async removePets(
+    petsId: string,
+  ): Promise<{ message: string; deletedPet?: Pets }> {
     try {
       const deletedPet = await this.petsModel.findByIdAndDelete(petsId);
       if (!deletedPet) {
@@ -101,23 +110,25 @@ export class PetsService {
     }
   }
 
-  async update(petsId: string, updateDTO: Partial<UpdatePetDto>): Promise<Pets> {
+  async update(
+    petsId: string,
+    updateDTO: Partial<UpdatePetDto>,
+  ): Promise<Pets> {
     try {
       const updatedPet = await this.petsModel.findByIdAndUpdate(
         petsId,
-        { $set: updateDTO }, 
+        { $set: updateDTO },
         { new: true },
       );
-      
+
       if (!updatedPet) {
         throw new Error('Pet not found');
       }
-  
+
       return updatedPet;
     } catch (err) {
       console.error('Error while updating pet:', err);
       throw new Error('Failed to update pet');
     }
   }
- 
 }

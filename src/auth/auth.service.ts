@@ -1,13 +1,13 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
-import * as jwt from 'jsonwebtoken';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as nodemailer from 'nodemailer';
 import { JwtService } from '@nestjs/jwt';
 import { CreateAuthDto, Role } from './dto/create-auth.dto';
-import { MinioService } from 'src/minio/minio.service';
-import { User } from 'src/users/schema/user.schema';
+import { MinioService } from '../minio/minio.service';
+
+import { User } from '../users/schema/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -15,12 +15,12 @@ export class AuthService {
     @InjectModel(User.name) private readonly userModel: Model<User>,
     private readonly jwtService: JwtService,
     private readonly minioService: MinioService,
-  ) { }
+  ) {}
 
   async register(userDto: CreateAuthDto, avatarUrl: string): Promise<any> {
-    const { firstName, lastName, email, password   } = userDto;
+    const { firstName, lastName, email, password } = userDto;
 
-    console.log(userDto)
+    console.log(userDto);
 
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
@@ -28,7 +28,6 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
 
     const CreateUser = await this.userModel.create({
       firstName,
@@ -42,7 +41,10 @@ export class AuthService {
     return CreateUser.save();
   }
 
-  async login(email: string, password: string): Promise<{ token: string, user: User }> {
+  async login(
+    email: string,
+    password: string,
+  ): Promise<{ token: string; user: User }> {
     console.log('email', email);
     const user = await this.userModel.findOne({ email });
     console.log('user', user);
@@ -65,10 +67,6 @@ export class AuthService {
     return { token, user };
   }
 
-
-
-
-
   async forgetPassword(email: string): Promise<any> {
     const user = await this.userModel.findOne({ email });
 
@@ -86,7 +84,6 @@ export class AuthService {
 
     return { message: 'OTP sent to email' };
   }
-
 
   async sendOtpEmail(email: string, otp: number) {
     const transporter = nodemailer.createTransport({
@@ -107,20 +104,18 @@ export class AuthService {
     await transporter.sendMail(mailOptions);
   }
 
-
   async verifyOtp(email: string, otp: number): Promise<any> {
     const user = await this.userModel.findOne({ email });
 
     console.log(user.otpExpires);
-    
 
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    // if (!user.otp || user.otp !== otp || new Date() > user.otpExpires) {
-    //   throw new HttpException('Invalid or expired OTP', HttpStatus.BAD_REQUEST);
-    // }
+    if (!user.otp || user.otp !== otp || new Date() > user.otpExpires) {
+      throw new HttpException('Invalid or expired OTP', HttpStatus.BAD_REQUEST);
+    }
 
     user.otp = undefined;
     user.otpExpires = undefined;
@@ -128,9 +123,6 @@ export class AuthService {
 
     return { message: 'OTP verified successfully' };
   }
-
-
-
 
   async resetPassword(email: string, newPassword: string): Promise<any> {
     const user = await this.userModel.findOne({ email });
@@ -140,7 +132,10 @@ export class AuthService {
     }
 
     if (user.otp !== undefined) {
-      throw new HttpException('OTP verification required', HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        'OTP verification required',
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -150,19 +145,17 @@ export class AuthService {
     return { message: 'Password reset successful' };
   }
 
-
   async updateAvatar(userId: string, avatarUrl: string) {
     const user = await this.userModel.findById(userId);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    
-    user.avatar = avatarUrl; 
+
+    user.avatar = avatarUrl;
     await user.save();
-    
-    return user; 
+
+    return user;
   }
-  
 
   async profile(userId: string): Promise<User> {
     const user = await this.userModel.findById(userId);
@@ -172,13 +165,6 @@ export class AuthService {
     return user;
   }
 }
-
-
-
-
-
-
-
 
 function generateOtpEmail(otp) {
   return `

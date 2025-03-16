@@ -4,9 +4,9 @@ import { AuthController } from './auth.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
 import { User, UserSchema } from 'src/users/schema/user.schema';
-import { MinioModule } from 'src/minio/minio.module'; 
+import { MinioModule } from 'src/minio/minio.module';
 import { UsersModule } from 'src/users/users.module';
-import 'dotenv/config'
+import 'dotenv/config';
 
 @Module({
   imports: [
@@ -15,7 +15,7 @@ import 'dotenv/config'
       secret: process.env.JWT_SECRET,
     }),
     MinioModule,
-    UsersModule
+    UsersModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],

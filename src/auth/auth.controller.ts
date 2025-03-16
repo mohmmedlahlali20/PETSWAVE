@@ -1,19 +1,26 @@
-
-import { Controller, Post, Body, UseInterceptors, UploadedFile, Get, Param, Patch, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseInterceptors,
+  UploadedFile,
+  Get,
+  Param,
+  Patch,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { MinioService } from 'src/minio/minio.service';
+import { MinioService } from '../minio/minio.service';
 
 @Controller('auth')
 export class AuthController {
-
   constructor(
     private readonly authService: AuthService,
     private readonly minioService: MinioService,
-  ) { }
-
-
+  ) {}
 
   @Post('/register')
   @UseInterceptors(
@@ -38,13 +45,19 @@ export class AuthController {
       if (file) {
         const bucketName = 'avatars';
         console.log(bucketName);
-        const avatarFileName = await this.minioService.uploadFile(bucketName, file);
+        const avatarFileName = await this.minioService.uploadFile(
+          bucketName,
+          file,
+        );
         console.log(avatarFileName);
         avatarUrl = `http://localhost:9000/${bucketName}/${avatarFileName}`;
         console.log(avatarUrl);
       }
 
-      const userRegistered = await this.authService.register(userDTO, avatarUrl);
+      const userRegistered = await this.authService.register(
+        userDTO,
+        avatarUrl,
+      );
 
       return {
         message: 'User has been registered successfully',
@@ -55,29 +68,24 @@ export class AuthController {
     }
   }
 
-
-
   @Patch('/update-profile/:userId')
-async updateUserAvatar(
-  @Param('userId') userId: string,
-  @Body('avatar') avatarUrl: string,
-) {
-  console.log(avatarUrl);
-  
-  if (!avatarUrl) {
-    throw new HttpException('Avatar URL is required', HttpStatus.BAD_REQUEST);
+  async updateUserAvatar(
+    @Param('userId') userId: string,
+    @Body('avatar') avatarUrl: string,
+  ) {
+    console.log(avatarUrl);
+
+    if (!avatarUrl) {
+      throw new HttpException('Avatar URL is required', HttpStatus.BAD_REQUEST);
+    }
+
+    const updatedUser = await this.authService.updateAvatar(userId, avatarUrl);
+
+    return {
+      message: 'Profile updated successfully',
+      user: updatedUser,
+    };
   }
-
-  const updatedUser = await this.authService.updateAvatar(userId, avatarUrl);
-
-  return {
-    message: 'Profile updated successfully',
-    user: updatedUser,
-  };
-}
-
-
-
 
   @Post('verify-otp')
   async verifyOtp(@Body() body: { email: string; otp: number }) {
@@ -109,13 +117,8 @@ async updateUserAvatar(
     return await this.authService.resetPassword(token, newPassword);
   }
 
-
-
   @Get('/profile/:userId')
   async ProfileUser(@Param('userId') userId: string) {
     return await this.authService.profile(userId);
   }
-
-
-
 }

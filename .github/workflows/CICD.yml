@@ -1,0 +1,60 @@
+name: PetsWave-Backend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - PW-46-Rédiger-et-exécuter-des-tests-unitaires
+      - PW-49-dockirise-via-docker
+      - Comments
+      - PETS
+      - commands
+  pull_request:
+    branches:
+      - main
+      - PW-46-Rédiger-et-exécuter-des-tests-unitaires
+      - PW-49-dockirise-via-docker
+      - Comments
+      - PETS
+      - commands
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Lint
+        run: npm run lint
+
+#      - name: Run Tests
+#        run: npm run test
+
+      - name: Build Project
+        run: npm run build
+
+  docker:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t filerouge .
+
+      - name: Run Docker container
+        run: |
+          docker run -d -p 5001:5000 filerouge

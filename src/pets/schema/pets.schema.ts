@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
-import { Category } from 'src/category/schema/cateogry.schema';
 
 export type PetsDocument = Pets & Document;
 
@@ -15,7 +14,11 @@ export class Pets {
   @Prop({ required: true })
   age: number;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Category', required: true })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Category',
+    required: true,
+  })
   category: Types.ObjectId;
 
   @Prop({ type: [String], required: true })
