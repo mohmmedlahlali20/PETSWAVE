@@ -1,6 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
-import * as jwt from 'jsonwebtoken';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as nodemailer from 'nodemailer';
@@ -114,9 +113,9 @@ export class AuthService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    // if (!user.otp || user.otp !== otp || new Date() > user.otpExpires) {
-    //   throw new HttpException('Invalid or expired OTP', HttpStatus.BAD_REQUEST);
-    // }
+    if (!user.otp || user.otp !== otp || new Date() > user.otpExpires) {
+      throw new HttpException('Invalid or expired OTP', HttpStatus.BAD_REQUEST);
+    }
 
     user.otp = undefined;
     user.otpExpires = undefined;
