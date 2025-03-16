@@ -9,7 +9,7 @@ export class CommentsController {
   @Post(':CreatedBy')
   create(
     @Param('CreatedBy') createdBy: string,
-    @Body() createCommentDto: CreateCommentDto
+    @Body() createCommentDto: CreateCommentDto,
   ) {
     return this.commentsService.create({ ...createCommentDto, createdBy });
   }
@@ -20,9 +20,9 @@ export class CommentsController {
   }
 
   @Get(':petId')
-async getCommentsByPetId(@Param('petId') petId: string) {
-  return await this.commentsService.getAllCommentsByPetId(petId);
-}
+  async getCommentsByPetId(@Param('petId') petId: string) {
+    return await this.commentsService.getAllCommentsByPetId(petId);
+  }
 
   @Delete(':commentId')
   remove(@Param('commentId') commentId: string) {
