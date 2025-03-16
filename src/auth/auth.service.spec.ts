@@ -80,6 +80,8 @@ describe('AuthService', () => {
   describe('login', () => {
     it('should return a JWT token for valid credentials', async () => {
       mockUserModel.findOne.mockResolvedValue(mockUser);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(true);
 
       const result = await authService.login(
@@ -109,6 +111,8 @@ describe('AuthService', () => {
 
     it('should throw error if password is incorrect', async () => {
       mockUserModel.findOne.mockResolvedValue(mockUser);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(false);
 
       await expect(
