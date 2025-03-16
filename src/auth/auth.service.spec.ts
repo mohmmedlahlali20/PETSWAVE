@@ -3,7 +3,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { Model } from 'mongoose';
-import { CreateAuthDto, Role } from './dto/create-auth.dto';
+import { Role } from './dto/create-auth.dto';
 import { AuthService } from './auth.service';
 import { MinioService } from '../minio/minio.service';
 import { User } from '../users/schema/user.schema';
@@ -38,7 +38,6 @@ const mockMinioService = {
 
 describe('AuthService', () => {
   let authService: AuthService;
-  let userModel: Model<User>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -51,7 +50,7 @@ describe('AuthService', () => {
     }).compile();
 
     authService = module.get<AuthService>(AuthService);
-    userModel = module.get<Model<User>>(getModelToken(User.name));
+    module.get<Model<User>>(getModelToken(User.name));
   });
 
   afterEach(() => {
@@ -59,8 +58,6 @@ describe('AuthService', () => {
   });
 
   describe('register', () => {
-
-
     it('should throw error if user already exists', async () => {
       mockUserModel.findOne.mockResolvedValue(mockUser);
 
@@ -102,7 +99,12 @@ describe('AuthService', () => {
 
       await expect(
         authService.login('unknown@example.com', 'password123'),
-      ).rejects.toThrow(new HttpException('User with this email does not exist', HttpStatus.NOT_FOUND));
+      ).rejects.toThrow(
+        new HttpException(
+          'User with this email does not exist',
+          HttpStatus.NOT_FOUND,
+        ),
+      );
     });
 
     it('should throw error if password is incorrect', async () => {
@@ -111,7 +113,9 @@ describe('AuthService', () => {
 
       await expect(
         authService.login('testing@gmail.com', 'wrongpassword'),
-      ).rejects.toThrow(new HttpException('Invalid password', HttpStatus.UNAUTHORIZED));
+      ).rejects.toThrow(
+        new HttpException('Invalid password', HttpStatus.UNAUTHORIZED),
+      );
     });
   });
 
@@ -119,7 +123,10 @@ describe('AuthService', () => {
     it('should update user avatar', async () => {
       mockUserModel.findById.mockResolvedValue(mockUser);
 
-      const result = await authService.updateAvatar('M123M123', 'new-avatar-url');
+      const result = await authService.updateAvatar(
+        'M123M123',
+        'new-avatar-url',
+      );
 
       expect(mockUserModel.findById).toHaveBeenCalledWith('M123M123');
       expect(mockUser.avatar).toBe('new-avatar-url');
