@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Pets } from 'src/pets/schema/pets.schema';
-import { User } from 'src/users/schema/user.schema';
+import { Pets } from '../../pets/schema/pets.schema';
+import { User } from '../../users/schema/user.schema';
 
 export type CommandeDocument = Commande & Document;
 
@@ -26,7 +26,5 @@ export class Commande {
   @Prop({ type: Number, required: true, min: 0 })
   totalAmount: number;
 }
-
-
 
 export const CommandeSchema = SchemaFactory.createForClass(Commande);
