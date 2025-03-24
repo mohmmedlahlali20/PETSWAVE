@@ -1,8 +1,12 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
 import { CommandesService } from './commandes.service';
 import { CreateCommandeDto } from './dto/create-commande.dto';
+import { JwtAuthGuard } from '../guards/auth.guard';
+import { Role } from '../auth/dto/create-auth.dto';
+import { Roles } from "../common/Role.decrotor";
 
 @Controller('commandes')
+@UseGuards(JwtAuthGuard)
 export class CommandesController {
   constructor(private readonly commandesService: CommandesService) {}
 
@@ -12,6 +16,7 @@ export class CommandesController {
   }
 
   @Get('/GetAllCommandes')
+  @Roles('Admin')
   async getAllCommandes() {
     const allCommandes = await this.commandesService.getAllCommandes();
     return {
