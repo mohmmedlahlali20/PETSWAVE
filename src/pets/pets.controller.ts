@@ -57,7 +57,7 @@ export class PetsController {
   }
 
   @Get('/findAllForAdmin')
-  @Roles('admin')
+  @Roles('Admin')
   async findAllPetsForAdmin() {
     return this.petsService.getAllPetsForAdmin();
   }

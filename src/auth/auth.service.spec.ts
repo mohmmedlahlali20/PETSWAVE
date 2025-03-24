@@ -100,7 +100,7 @@ describe('AuthService', () => {
       mockUserModel.findOne.mockResolvedValue(null);
 
       await expect(
-        authService.login('unknown@example.com', 'password123'),
+        authService.login('testing88@gmail.com', 'password123'),
       ).rejects.toThrow(
         new HttpException(
           'User with this email does not exist',
@@ -116,7 +116,7 @@ describe('AuthService', () => {
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(false);
 
       await expect(
-        authService.login('testing@gmail.com', 'wrongpassword'),
+        authService.login('testing@gmail.com', 'invalidPAssword'),
       ).rejects.toThrow(
         new HttpException('Invalid password', HttpStatus.UNAUTHORIZED),
       );
@@ -142,7 +142,7 @@ describe('AuthService', () => {
       mockUserModel.findById.mockResolvedValue(null);
 
       await expect(
-        authService.updateAvatar('unknownId', 'new-avatar-url'),
+        authService.updateAvatar('98725f4s7', 'new-avatar-url'),
       ).rejects.toThrow(
         new HttpException('User not found', HttpStatus.NOT_FOUND),
       );

@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseGuards } from "@nestjs/common";
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { JwtAuthGuard } from '../guards/auth.guard';
+import { Roles } from "../common/Role.decrotor";
 
 @Controller('comments')
+@UseGuards(JwtAuthGuard)
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
@@ -15,6 +18,7 @@ export class CommentsController {
   }
 
   @Get('findAll')
+  @Roles('Admin')
   findAll() {
     return this.commentsService.findAll();
   }
